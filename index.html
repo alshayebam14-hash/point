@@ -32,7 +32,7 @@
             background: #4b5563;
         }
         .glass-panel {
-            background: rgba(17, 24, 39, 0.8);
+            background: rgba(17, 24, 39, 0.85);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -69,26 +69,25 @@
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
 
         <!-- Sectors Navigation Tabs -->
-        <div class="flex items-center gap-2 border-b border-gray-800 pb-3 overflow-x-auto custom-scrollbar" id="sectors-tab-container">
-            <!-- Dynamic Sector Tabs injected by JS -->
-        </div>
+        <div class="flex items-center gap-2 border-b border-gray-800 pb-3 overflow-x-auto custom-scrollbar" id="sectors-tab-container"></div>
 
         <!-- Sector Active View Header -->
         <div class="glass-panel rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <div class="text-amber-400 bg-amber-400/10 p-2 rounded-lg" id="current-sector-icon">
+                <div class="text-amber-400 bg-amber-400/10 p-2 rounded-lg">
                     <i class="fa-solid fa-shield-halved text-xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-white flex items-center gap-3" id="current-sector-title">
-                        القوات المسلحة
-                    </h2>
-                    <p class="text-xs text-gray-400" id="current-sector-subtitle">إدارة ومراجعة سجلات القطاع وقوانينه الخاصة</p>
+                    <h2 class="text-lg font-bold text-white" id="current-sector-title">القوات المسلحة</h2>
+                    <p class="text-xs text-gray-400">إدارة ومراجعة سجلات القطاع وقوانينه الخاصة</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <button onclick="clearSectorRecords()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-amber-500/20 transition">
+                    <i class="fa-solid fa-rotate-right"></i> تصفير السجلات
+                </button>
                 <button onclick="openEditSectorModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-gray-700 transition">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل القطاع
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل
                 </button>
                 <button onclick="deleteCurrentSector()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-red-500/20 transition">
                     <i class="fa-solid fa-trash-can"></i> حذف
@@ -111,8 +110,6 @@
 
         <!-- ================= Sub-tab 1: Import & Raw Data ================= -->
         <section id="subtab-content-import" class="space-y-6">
-
-            <!-- One Click Fast Bulk Import -->
             <div class="glass-panel rounded-2xl p-6 border border-amber-500/20">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -122,113 +119,42 @@
                         <i class="fa-solid fa-flask"></i> تجربة نموذج جاهز
                     </button>
                 </div>
-                <p class="text-xs text-gray-400 mb-3">انسخ أي عدد من التشاركات أو تقارير الديسكورد واللصق هنا مباشرة، وسيقوم النظام بتفكيكها واستخراج الأيدي والاسم والموقع والنقاط تلقائياً:</p>
+                <p class="text-xs text-gray-400 mb-3">انسخ أي عدد من التشاركات أو تقارير الديسكورد والصقها هنا مباشرة:</p>
 
                 <textarea id="bulk-paste-input" rows="6" dir="auto"
                     class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-gray-200 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none custom-scrollbar font-mono"
-                    placeholder="قم بلصق النص المنسوخ من الديسكورد هنا لتفكيكه تلقائياً..."></textarea>
+                    placeholder="قم بلصق النص المنسوخ من الديسكورد هنا..."></textarea>
 
                 <div class="mt-4 flex justify-between items-center flex-wrap gap-3">
-                    <div class="text-xs text-gray-400">
-                        * محرك الذكاء يقبل قراءة صور الديسكورد المنسوخة تلقائياً.
-                    </div>
+                    <div class="text-xs text-gray-400">* يتم حفظ السجلات في ذاكرة المتصفح تلقائياً ولن تختفي عند عمل Refresh.</div>
                     <button onclick="processBulkImport()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-950 font-bold px-6 py-2.5 rounded-xl text-sm transition flex items-center gap-2 shadow-lg shadow-amber-500/20">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> استخراج وحفظ كافة السجلات بضغطة زر
                     </button>
                 </div>
             </div>
-
-            <!-- Single Input Form (Optional Detail Entry) -->
-            <div class="glass-panel rounded-2xl p-6">
-                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-plus text-amber-400"></i> أو إدخال سجل مفرد وتحديد صور مخصصة
-                </h3>
-
-                <form id="record-form" onsubmit="handleManualRecordSubmit(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">تاريخ السجل:</label>
-                            <input type="date" id="record-date" required class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">أيدي العسكري (ID):</label>
-                            <input type="text" id="record-military-id" required placeholder="مثال: 121102" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">اسم العسكري:</label>
-                            <input type="text" id="record-military-name" required placeholder="مثال: R-4 HOMS" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">موقع السيناريو:</label>
-                            <input type="text" id="record-location" required placeholder="مثال: مصنع بقر" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">نقاط السيناريو:</label>
-                            <input type="number" id="record-points" required min="0" placeholder="7" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                        <div class="p-3 bg-gray-950 border border-gray-800 rounded-xl">
-                            <label class="block text-xs font-semibold text-gray-300 mb-2">صورة البداية والتوقيت:</label>
-                            <input type="file" id="start-image-file" accept="image/*" class="text-xs text-gray-400 w-full file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-amber-400 hover:file:bg-gray-700">
-                        </div>
-                        <div class="p-3 bg-gray-950 border border-gray-800 rounded-xl">
-                            <label class="block text-xs font-semibold text-gray-300 mb-2">صورة النهاية وحالة الانتصار:</label>
-                            <input type="file" id="end-image-file" accept="image/*" class="text-xs text-gray-400 w-full file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-amber-400 hover:file:bg-gray-700">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-amber-400 font-bold px-6 py-2.5 rounded-xl text-sm transition w-full border border-amber-500/20">
-                        إضافة السجل إلى جدول القطاع
-                    </button>
-                </form>
-            </div>
         </section>
 
         <!-- ================= Sub-tab 2: Sector Rules ================= -->
         <section id="subtab-content-rules" class="hidden space-y-6">
-            
-            <!-- Quick Rules Configuration -->
             <div class="glass-panel rounded-2xl p-6">
                 <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-amber-400"></i> إعداد ضوابط الخصومات التلقائية لهذا القطاع
+                    <i class="fa-solid fa-sliders text-amber-400"></i> إعداد ضوابط الخصومات لهذا القطاع
                 </h3>
-                <p class="text-xs text-gray-400 mb-4">تُطبق هذه القواعد أوتوماتيكياً عند فحص السجلات وجردها:</p>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">الحد الأدنى للمدة الزمنية للسيناريو (بالدقائق):</label>
-                        <input type="number" id="rule-min-duration" value="20" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">نقاط الخصم عند مخالفة شرط الوقت:</label>
-                        <input type="number" id="rule-time-penalty" value="20" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 outline-none focus:border-amber-500">
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 mb-1">نقاط الخصم عند نقص أو غياب الصور:</label>
                         <input type="number" id="rule-image-penalty" value="10" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 outline-none focus:border-amber-500">
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">الحد الأقصى المسموح به للسجلات اليومية لكل عسكري:</label>
-                        <input type="number" id="rule-daily-limit" value="10" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 outline-none focus:border-amber-500">
-                    </div>
                 </div>
-
                 <button onclick="saveSectorRules()" class="mt-4 bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-6 py-2 rounded-xl text-sm transition">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ قوانين القطاع
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ القوانين
                 </button>
             </div>
 
-            <!-- Full Sector Rules & Points Table Reference -->
             <div class="glass-panel rounded-2xl p-6">
-                <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                    <h3 class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-book-bookmark text-amber-400"></i> جدول قوانين ونقاط القوات المسلحة المعتمد
-                    </h3>
-                    <input type="text" id="rule-search-input" onkeyup="filterRulesTable()" placeholder="بحث في القوانين والمواقع..." class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1 text-xs text-gray-200 focus:border-amber-500 outline-none">
-                </div>
-
+                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark text-amber-400"></i> جدول قوانين ونقاط القوات المسلحة المعتمد
+                </h3>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-right text-xs text-gray-300">
                         <thead class="bg-gray-950 text-amber-400 font-bold uppercase border-b border-gray-800">
@@ -238,9 +164,7 @@
                                 <th class="p-3">الكولد داون / الشروط</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-800/50" id="rules-table-body">
-                            <!-- Injected dynamically by JS -->
-                        </tbody>
+                        <tbody class="divide-y divide-gray-800/50" id="rules-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -248,10 +172,9 @@
 
         <!-- ================= Sub-tab 3: Audit Dashboard ================= -->
         <section id="subtab-content-audit" class="hidden space-y-6">
-
-            <!-- Date Range Filter & Search Controls -->
+            <!-- Filter Bar -->
             <div class="glass-panel rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4">
-                <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
+                <div class="flex items-center gap-3 flex-wrap">
                     <div>
                         <label class="block text-[10px] text-gray-400 mb-1">من تاريخ:</label>
                         <input type="date" id="filter-start-date" onchange="runSectorAudit()" class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-gray-200 outline-none focus:border-amber-500">
@@ -261,9 +184,7 @@
                         <input type="date" id="filter-end-date" onchange="runSectorAudit()" class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-gray-200 outline-none focus:border-amber-500">
                     </div>
                     <div class="flex items-end gap-1 pt-4">
-                        <button onclick="setFilterShortcut('today')" class="bg-gray-800 hover:bg-gray-700 text-xs px-2.5 py-1.5 rounded-lg text-gray-300">اليوم</button>
-                        <button onclick="setFilterShortcut('week')" class="bg-gray-800 hover:bg-gray-700 text-xs px-2.5 py-1.5 rounded-lg text-gray-300">هذا الأسبوع</button>
-                        <button onclick="setFilterShortcut('all')" class="bg-gray-800 hover:bg-gray-700 text-xs px-2.5 py-1.5 rounded-lg text-gray-300">الكل</button>
+                        <button onclick="resetDateFilter()" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-lg text-amber-400 font-bold">إلغاء الفلترة وعرض الكل</button>
                     </div>
                 </div>
 
@@ -278,12 +199,10 @@
                 <div class="glass-panel rounded-2xl p-4 border-r-4 border-blue-500">
                     <span class="text-xs text-gray-400 block mb-1">إجمالي النقاط الكلي</span>
                     <span class="text-2xl font-black text-white" id="summary-gross-points">0</span>
-                    <span class="text-[10px] text-gray-500 block mt-1">قبل تطبيق الخصومات</span>
                 </div>
                 <div class="glass-panel rounded-2xl p-4 border-r-4 border-green-500">
                     <span class="text-xs text-gray-400 block mb-1">السجلات الصحيحة</span>
                     <span class="text-2xl font-black text-green-400" id="summary-valid-count">0</span>
-                    <span class="text-[10px] text-gray-500 block mt-1">سجلات مقبولة 100%</span>
                 </div>
                 <div class="glass-panel rounded-2xl p-4 border-r-4 border-red-500">
                     <span class="text-xs text-gray-400 block mb-1">السجلات الخاطئة والخصم</span>
@@ -293,47 +212,33 @@
                 <div class="glass-panel rounded-2xl p-4 border-r-4 border-amber-500">
                     <span class="text-xs text-gray-400 block mb-1">صافي النقاط النهائي</span>
                     <span class="text-2xl font-black text-amber-400" id="summary-net-points">0</span>
-                    <span class="text-[10px] text-amber-400/80 block mt-1">النتيجة المعتمدة للجرد</span>
                 </div>
             </div>
 
             <!-- Detailed Audited Records Output -->
             <div class="space-y-4">
-                <h4 class="text-sm font-bold text-gray-300 flex items-center justify-between">
-                    <span>تفاصيل السجلات المفرزة والنتائج:</span>
-                    <span class="text-xs text-gray-500 font-normal">تُعرض السجلات بناءً على الفحص الآلي للقوانين</span>
-                </h4>
-
-                <!-- Valid Records Section -->
                 <div class="glass-panel rounded-2xl p-4">
                     <h5 class="text-xs font-bold text-green-400 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-circle-check"></i> السجلات الصحيحة والمقبولة (<span id="badge-valid-count">0</span>)
                     </h5>
-                    <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar" id="list-valid-records">
-                        <!-- Injected JS -->
-                    </div>
+                    <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar" id="list-valid-records"></div>
                 </div>
 
-                <!-- Invalid Records Section -->
                 <div class="glass-panel rounded-2xl p-4 border border-red-500/20">
                     <h5 class="text-xs font-bold text-red-400 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-triangle-exclamation"></i> السجلات الخاطئة مع سبب الغلط وقيمة الخصم (<span id="badge-invalid-count">0</span>)
                     </h5>
-                    <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar" id="list-invalid-records">
-                        <!-- Injected JS -->
-                    </div>
+                    <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar" id="list-invalid-records"></div>
                 </div>
             </div>
-
         </section>
-
     </main>
 
     <!-- Modal: Add New Sector -->
     <div id="modal-add-sector" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="glass-panel rounded-2xl p-6 w-full max-w-md border border-gray-800">
             <h3 class="text-lg font-bold text-white mb-4">إضافة قطاع جديد</h3>
-            <input type="text" id="new-sector-name" placeholder="اسم القطاع (مثال: الحرس الملكي)" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-amber-500 mb-4">
+            <input type="text" id="new-sector-name" placeholder="اسم القطاع..." class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-amber-500 mb-4">
             <div class="flex justify-end gap-2">
                 <button onclick="closeAddSectorModal()" class="px-4 py-2 bg-gray-800 text-gray-300 rounded-xl text-xs font-semibold">إلغاء</button>
                 <button onclick="saveNewSector()" class="px-4 py-2 bg-amber-500 text-gray-950 font-bold rounded-xl text-xs">إضافة</button>
@@ -344,9 +249,7 @@
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-5 left-5 z-50 flex flex-col gap-2"></div>
 
-    <!-- Javascript Logic -->
     <script>
-        // Default Sector Rules & Points Dictionary
         const MILITARY_RULES_DICTIONARY = [
             { location: "البنك المركزي", points: 10, cooldown: "كولد داون قياسي" },
             { location: "البوليفارد", points: 9, cooldown: "كولد داون قياسي" },
@@ -386,35 +289,25 @@
             { location: "الارينا", points: 5, cooldown: "كولد داون قياسي" },
             { location: "مداهمة مقر عصابة", points: 10, cooldown: "كولد داون ساعة واحدة" },
             { location: "نقاط التفتيش (20 دقيقة)", points: 20, cooldown: "كولد داون ساعة واحدة" },
-            { location: "استلام موقع خفارة (20 دقيقة)", points: 20, cooldown: "أقصى عدد 4 عساكر / كولد داون ساعتين" },
-            { location: "السيطرة على الطريق السريع / المناطق", points: 20, cooldown: "مرة واحدة كل 4 ساعات" }
+            { location: "استلام موقع خفارة (20 دقيقة)", points: 20, cooldown: "كولد داون ساعتين" },
+            { location: "السيطرة على الطريق السريع / المناطق", points: 20, cooldown: "مرة كل 4 ساعات" }
         ];
 
-        // System State
         let state = {
             sectors: [
-                { id: "sec_1", name: "القوات المسلحة", rules: { minDuration: 20, timePenalty: 20, imagePenalty: 10, dailyLimit: 10 }, records: [] },
-                { id: "sec_2", name: "الحرس الملكي", rules: { minDuration: 20, timePenalty: 20, imagePenalty: 10, dailyLimit: 10 }, records: [] }
+                { id: "sec_1", name: "القوات المسلحة", rules: { imagePenalty: 10 }, records: [] },
+                { id: "sec_2", name: "الحرس الملكي", rules: { imagePenalty: 10 }, records: [] }
             ],
             activeSectorId: "sec_1"
         };
 
-        // Initialize App
         document.addEventListener("DOMContentLoaded", () => {
             loadFromStorage();
             renderSectorTabs();
             renderRulesTable();
-            setCurrentDateInputs();
             runSectorAudit();
         });
 
-        function setCurrentDateInputs() {
-            const today = new Date().toISOString().split('T')[0];
-            const dateInput = document.getElementById('record-date');
-            if (dateInput) dateInput.value = today;
-        }
-
-        // Render Sector Tabs
         function renderSectorTabs() {
             const container = document.getElementById("sectors-tab-container");
             container.innerHTML = "";
@@ -425,7 +318,7 @@
                 btn.className = `px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap ${
                     isActive ? "bg-amber-500 text-gray-950 shadow-lg shadow-amber-500/20" : "bg-gray-900 text-gray-400 hover:text-gray-200 border border-gray-800"
                 }`;
-                btn.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${sec.name}`;
+                btn.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${sec.name} (${sec.records.length})`;
                 container.appendChild(btn);
             });
 
@@ -445,7 +338,6 @@
             return state.sectors.find(s => s.id === state.activeSectorId);
         }
 
-        // Sub-tabs switching
         function switchSubTab(tabName) {
             ['import', 'rules', 'audit'].forEach(t => {
                 const content = document.getElementById(`subtab-content-${t}`);
@@ -463,7 +355,6 @@
             if (tabName === 'audit') runSectorAudit();
         }
 
-        // Parse Text from Discord Copy
         function processBulkImport() {
             const text = document.getElementById("bulk-paste-input").value;
             if (!text.trim()) {
@@ -474,14 +365,12 @@
             const activeSec = getActiveSector();
             if (!activeSec) return;
 
-            // Split reports by common Discord separator or header patterns
             const entries = text.split(/(?=تم مباشرة الحالة من قبل|موقع السيناريو|GR⭐)/gi);
             let addedCount = 0;
 
             entries.forEach(block => {
                 if (!block.trim()) return;
 
-                // Extract Military ID & Name
                 let militaryId = "1001";
                 let militaryName = "عسكري غير معرف";
 
@@ -491,7 +380,6 @@
                 const nameMatch = block.match(/GR⭐\s*[\w-]*\s+([A-Za-z0-9_]+)/i) || block.match(/من قبل\s*:\s*@?([^\n]+)/i);
                 if (nameMatch) militaryName = nameMatch[1].trim();
 
-                // Extract Location
                 let location = "موقع سيناريو";
                 const locMatch = block.match(/موقع السيناريو\s*:\s*([^\n]+)/i);
                 if (locMatch) {
@@ -502,7 +390,6 @@
                     });
                 }
 
-                // Extract Points
                 let points = 5;
                 const ptsMatch = block.match(/نقاط موقع السيناريو\s*:\s*(\d+)/i) || block.match(/النقاط\s*:\s*(\d+)/i);
                 if (ptsMatch) {
@@ -512,7 +399,6 @@
                     if (foundRule) points = foundRule.points;
                 }
 
-                // Check for Images
                 const hasImages = block.toLowerCase().includes("image") || block.includes("http") || block.includes("صور");
 
                 activeSec.records.push({
@@ -530,12 +416,12 @@
             });
 
             saveToStorage();
+            renderSectorTabs();
             showToast(`تم استخراج وحفظ ${addedCount} سجل بنجاح!`, "success");
             document.getElementById("bulk-paste-input").value = "";
             switchSubTab('audit');
         }
 
-        // Run Sector Audit & Rules Check Engine
         function runSectorAudit() {
             const activeSec = getActiveSector();
             if (!activeSec) return;
@@ -562,7 +448,6 @@
                 let penalty = 0;
                 let reasons = [];
 
-                // Rule Check 1: Missing Images
                 if (!r.hasImages) {
                     isInvalid = true;
                     penalty += activeSec.rules.imagePenalty;
@@ -579,7 +464,6 @@
 
             const netPoints = grossPoints - totalDeductions;
 
-            // DOM Updates with Guards
             const updateElem = (id, val) => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = val;
@@ -593,10 +477,9 @@
             updateElem("badge-valid-count", validRecords.length);
             updateElem("badge-invalid-count", invalidRecords.length);
 
-            // Render Lists
             const validListEl = document.getElementById("list-valid-records");
             if (validListEl) {
-                validListEl.innerHTML = validRecords.length === 0 ? '<p class="text-xs text-gray-500">لا توجد سجلات مقبولة</p>' : 
+                validListEl.innerHTML = validRecords.length === 0 ? '<p class="text-xs text-gray-500">لا توجد سجلات مقبولة ضمن الفلتر الحالي</p>' : 
                     validRecords.map(r => `
                         <div class="p-2.5 bg-gray-950 rounded-xl border border-gray-800 flex justify-between items-center text-xs">
                             <div>
@@ -624,7 +507,26 @@
             }
         }
 
-        // Helpers & UI Mods
+        function resetDateFilter() {
+            document.getElementById("filter-start-date").value = "";
+            document.getElementById("filter-end-date").value = "";
+            document.getElementById("filter-search-term").value = "";
+            runSectorAudit();
+        }
+
+        function clearSectorRecords() {
+            if (confirm("هل أنت متأكد من تصفير وحذف جميع سجلات هذا القطاع؟")) {
+                const activeSec = getActiveSector();
+                if (activeSec) {
+                    activeSec.records = [];
+                    saveToStorage();
+                    renderSectorTabs();
+                    runSectorAudit();
+                    showToast("تم تصفير سجلات القطاع بنجاح", "success");
+                }
+            }
+        }
+
         function renderRulesTable() {
             const body = document.getElementById("rules-table-body");
             if (!body) return;
@@ -670,11 +572,11 @@ Image`;
         }
 
         function saveToStorage() {
-            localStorage.setItem("grave_rp_audit_state", JSON.stringify(state));
+            localStorage.setItem("grave_rp_audit_state_v2", JSON.stringify(state));
         }
 
         function loadFromStorage() {
-            const saved = localStorage.getItem("grave_rp_audit_state");
+            const saved = localStorage.getItem("grave_rp_audit_state_v2");
             if (saved) {
                 try { state = JSON.parse(saved); } catch(e){}
             }
@@ -686,7 +588,7 @@ Image`;
         function saveNewSector() {
             const name = document.getElementById("new-sector-name").value.trim();
             if (!name) return;
-            const newSec = { id: "sec_" + Date.now(), name: name, rules: { minDuration: 20, timePenalty: 20, imagePenalty: 10, dailyLimit: 10 }, records: [] };
+            const newSec = { id: "sec_" + Date.now(), name: name, rules: { imagePenalty: 10 }, records: [] };
             state.sectors.push(newSec);
             state.activeSectorId = newSec.id;
             saveToStorage();
