@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام جرد وتدقيق القطاعات | Grave RP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0b0f19;
+            color: #e2e8f0;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between custom-scrollbar">
+
+    <!-- Header / Navbar -->
+    <header class="border-b border-gray-800 bg-gray-900/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-500/20 text-amber-500 p-2.5 rounded-xl border border-amber-500/30">
+                    <i class="fa-solid fa-layer-group text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wide text-white flex items-center gap-2">
+                        نظام جرد وتدقيق القطاعات
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">Grave RP</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">إدارة القطاعات - الضوابط والقوانين - الجرد والخصومات الآلية</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3">
+                <button onclick="openAddSectorModal()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition shadow-lg shadow-amber-500/10 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle"></i> إضافة قطاع جديد
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+        <!-- Sectors Navigation Tabs -->
+        <div class="flex items-center gap-2 border-b border-gray-800 pb-3 overflow-x-auto custom-scrollbar" id="sectors-tab-container">
+            <!-- Dynamic Sector Tabs injected by JS -->
+        </div>
+
+        <!-- Sector Active View Header -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="text-amber-400 bg-amber-400/10 p-2 rounded-lg" id="current-sector-icon">
+                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-3" id="current-sector-title">
+                        القوات المسلحة
+                    </h2>
+                    <p class="text-xs text-gray-400" id="current-sector-subtitle">إدارة ومراجعة سجلات القطاع وقوانينه الخاصة</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openEditSectorModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-gray-700 transition">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل القطاع
+                </button>
+                <button onclick="deleteCurrentSector()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-red-500/20 transition">
+                    <i class="fa-solid fa-trash-can"></i> حذف
+                </button>
+            </div>
+        </div>
+
+        <!-- Inner Navigation (Sub-tabs) -->
+        <div class="flex border-b border-gray-800 gap-6 text-sm font-semibold">
+            <button onclick="switchSubTab('import')" id="subtab-btn-import" class="py-2 text-amber-400 border-b-2 border-amber-400 flex items-center gap-2">
+                <i class="fa-solid fa-file-import"></i> إدخال السجلات والصور
+            </button>
+            <button onclick="switchSubTab('rules')" id="subtab-btn-rules" class="py-2 text-gray-400 hover:text-gray-200 border-b-2 border-transparent flex items-center gap-2">
+                <i class="fa-solid fa-gavel"></i> قوانين وشروط القطاع
+            </button>
+            <button onclick="switchSubTab('audit')" id="subtab-btn-audit" class="py-2 text-gray-400 hover:text-gray-200 border-b-2 border-transparent flex items-center gap-2">
+                <i class="fa-solid fa-calculator"></i> الجرد والتدقيق الحسابي
+            </button>
+        </div>
+
+        <!-- ================= Sub-tab 1: Import & Raw Data ================= -->
+        <section id="subtab-content-import" class="space-y-6">
+
+            <!-- One Click Fast Bulk Import -->
+            <div class="glass-panel rounded-2xl p-6 border border-amber-500/20">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-amber-400"></i> استيراد وقراءة السجلات بضغطة زر واحدة (Bulk Auto-Importer)
+                    </h3>
+                    <button onclick="loadSampleText()" class="text-xs text-amber-400 hover:underline">
+                        <i class="fa-solid fa-flask"></i> تجربة نموذج جاهز
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mb-3">انسخ أي عدد من التشاركات أو تقارير الديسكورد واللصق هنا مباشرة، وسيقوم النظام بتفكيكها واستخراج الأيدي والاسم والموقع والنقاط تلقائياً:</p>
+
+                <textarea id="bulk-paste-input" rows="6" dir="auto"
+                    class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-gray-200 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none custom-scrollbar font-mono"
+                    placeholder="قم بلصق النص المنسوخ من الديسكورد هنا لتفكيكه تلقائياً..."></textarea>
+
+                <div class="mt-4 flex justify-between items-center flex-wrap gap-3">
+                    <div class="text-xs text-gray-400">
+                        * محرك الذكاء يقبل قراءة صور الديسكورد المنسوخة تلقائياً.
+                    </div>
+                    <button onclick="processBulkImport()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-950 font-bold px-6 py-2.5 rounded-xl text-sm transition flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> استخراج وحفظ كافة السجلات بضغطة زر
+                    </button>
+                </div>
+            </div>
+
+            <!-- Single Input Form (Optional Detail Entry) -->
+            <div class="glass-panel rounded-2xl p-6">
+                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-plus text-amber-400"></i> أو إدخال سجل مفرد وتحديد صور مخصصة
+                </h3>
+
+                <form id="record-form" onsubmit="handleManualRecordSubmit(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">تاريخ السجل:</label>
+                            <input type="date" id="record-date" required class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">أيدي العسكري (ID):</label>
+                            <input type="text" id="record-military-id" required placeholder="مثال: 121102" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">اسم العسكري:</label>
+                            <input type="text" id="record-military-name" required placeholder="مثال: R-4 HOMS" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">موقع السيناريو:</label>
+                            <input type="text" id="record-location" required placeholder="مثال: مصنع بقر" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">نقاط السيناريو:</label>
+                            <input type="number" id="record-points" required min="0" placeholder="7" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 focus:border-amber-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="p-3 bg-gray-950 border border-gray-800 rounded-xl">
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">صورة البداية والتوقيت:</label>
+                            <input type="file" id="start-image-file" accept="image/*" class="text-xs text-gray-400 w-full file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-amber-400 hover:file:bg-gray-700">
+                        </div>
+                        <div class="p-3 bg-gray-950 border border-gray-800 rounded-xl">
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">صورة النهاية وحالة الانتصار:</label>
+                            <input type="file" id="end-image-file" accept="image/*" class="text-xs text-gray-400 w-full file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-amber-400 hover:file:bg-gray-700">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-amber-400 font-bold px-6 py-2.5 rounded-xl text-sm transition w-full border border-amber-500/20">
+                        إضافة السجل إلى جدول القطاع
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= Sub-tab 2: Sector Rules ================= -->
+        <section id="subtab-content-rules" class="hidden space-y-6">
+            
+            <!-- Quick Rules Configuration -->
+            <div class="glass-panel rounded-2xl p-6">
+                <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-amber-400"></i> إعداد ضوابط الخصومات التلقائية لهذا القطاع
+                </h3>
+                <p class="text-xs text-gray-400 mb-4">تُطبق هذه القواعد أوتوماتيكياً عند فحص السجلات وجردها:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">الحد الأدنى للمدة الزمنية للسيناريو (بالدقائق):</label>
+                        <input type="number" id="rule-min-duration" value="20" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">نقاط الخصم عند مخالفة شرط الوقت:</label>
+                        <input type="number" id="rule-time-penalty" value="20" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">نقاط الخصم عند نقص أو غياب الصور:</label>
+                        <input type="number" id="rule-image-penalty" value="10" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">الحد الأقصى المسموح به للسجلات اليومية لكل عسكري:</label>
+                        <input type="number" id="rule-daily-limit" value="10" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-sm text-gray-200 outline-none focus:border-amber-500">
+                    </div>
+                </div>
+
+                <button onclick="saveSectorRules()" class="mt-4 bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-6 py-2 rounded-xl text-sm transition">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ قوانين القطاع
+                </button>
+            </div>
+
+            <!-- Full Sector Rules & Points Table Reference -->
+            <div class="glass-panel rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-amber-400"></i> جدول قوانين ونقاط القوات المسلحة المعتمد
+                    </h3>
+                    <input type="text" id="rule-search-input" onkeyup="filterRulesTable()" placeholder="بحث في القوانين والمواقع..." class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1 text-xs text-gray-200 focus:border-amber-500 outline-none">
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right text-xs text-gray-300">
+                        <thead class="bg-gray-950 text-amber-400 font-bold uppercase border-b border-gray-800">
+                            <tr>
+                                <th class="p-3">نوع السيناريو / الموقع</th>
+                                <th class="p-3">النقاط المستحقة</th>
+                                <th class="p-3">الكولد داون / الشروط</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800/50" id="rules-table-body">
+                            <!-- Injected dynamically by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= Sub-tab 3: Audit Dashboard ================= -->
+        <section id="subtab-content-audit" class="hidden space-y-6">
+
+            <!-- Date Range Filter & Search Controls -->
+            <div class="glass-panel rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">من تاريخ:</label>
+                        <input type="date" id="filter-start-date" onchange="runSectorAudit()" class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-gray-200 outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">إلى تاريخ:</label>
+                        <input type="date" id="filter-end-date" onchange="runSectorAudit()" class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-gray-200 outline-none focus:border-amber-500">
+                    </div>
+                    <div class="flex items-end gap-1 pt-4">
+                        <button onclick="setFilterShortcut('today')" class="bg-gray-800 hover:bg-gray-700 text-xs px-2.5 py-1.5 rounded-lg text-gray-300">اليوم</button>
+                        <button onclick="setFilterShortcut('week')" class="bg-gray-800 hover:bg-gray-700 text-xs px-2.5 py-1.5 rounded-lg text-gray-300">هذا الأسبوع</button>
+                        <button onclick="setFilterShortcut('all')" class="bg-gray-800 hover:bg-gray-700 text-xs px-2.5 py-1.5 rounded-lg text-gray-300">الكل</button>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-auto">
+                    <label class="block text-[10px] text-gray-400 mb-1">بحث برقم ID أو اسم العسكري:</label>
+                    <input type="text" id="filter-search-term" onkeyup="runSectorAudit()" placeholder="بحث..." class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-gray-200 outline-none focus:border-amber-500 w-full">
+                </div>
+            </div>
+
+            <!-- Summary KPI Scorecards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-panel rounded-2xl p-4 border-r-4 border-blue-500">
+                    <span class="text-xs text-gray-400 block mb-1">إجمالي النقاط الكلي</span>
+                    <span class="text-2xl font-black text-white" id="summary-gross-points">0</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">قبل تطبيق الخصومات</span>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-r-4 border-green-500">
+                    <span class="text-xs text-gray-400 block mb-1">السجلات الصحيحة</span>
+                    <span class="text-2xl font-black text-green-400" id="summary-valid-count">0</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">سجلات مقبولة 100%</span>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-r-4 border-red-500">
+                    <span class="text-xs text-gray-400 block mb-1">السجلات الخاطئة والخصم</span>
+                    <span class="text-2xl font-black text-red-400" id="summary-invalid-count">0</span>
+                    <span class="text-[10px] text-red-400/80 block mt-1" id="summary-total-deductions">مجموع الخصم: 0 نقطة</span>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 border-r-4 border-amber-500">
+                    <span class="text-xs text-gray-400 block mb-1">صافي النقاط النهائي</span>
+                    <span class="text-2xl font-black text-amber-400" id="summary-net-points">0</span>
+                    <span class="text-[10px] text-amber-400/80 block mt-1">النتيجة المعتمدة للجرد</span>
+                </div>
+            </div>
+
+            <!-- Detailed Audited Records Output -->
+            <div class="space-y-4">
+                <h4 class="text-sm font-bold text-gray-300 flex items-center justify-between">
+                    <span>تفاصيل السجلات المفرزة والنتائج:</span>
+                    <span class="text-xs text-gray-500 font-normal">تُعرض السجلات بناءً على الفحص الآلي للقوانين</span>
+                </h4>
+
+                <!-- Valid Records Section -->
+                <div class="glass-panel rounded-2xl p-4">
+                    <h5 class="text-xs font-bold text-green-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i> السجلات الصحيحة والمقبولة (<span id="badge-valid-count">0</span>)
+                    </h5>
+                    <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar" id="list-valid-records">
+                        <!-- Injected JS -->
+                    </div>
+                </div>
+
+                <!-- Invalid Records Section -->
+                <div class="glass-panel rounded-2xl p-4 border border-red-500/20">
+                    <h5 class="text-xs font-bold text-red-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> السجلات الخاطئة مع سبب الغلط وقيمة الخصم (<span id="badge-invalid-count">0</span>)
+                    </h5>
+                    <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar" id="list-invalid-records">
+                        <!-- Injected JS -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Modal: Add New Sector -->
+    <div id="modal-add-sector" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="glass-panel rounded-2xl p-6 w-full max-w-md border border-gray-800">
+            <h3 class="text-lg font-bold text-white mb-4">إضافة قطاع جديد</h3>
+            <input type="text" id="new-sector-name" placeholder="اسم القطاع (مثال: الحرس الملكي)" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-amber-500 mb-4">
+            <div class="flex justify-end gap-2">
+                <button onclick="closeAddSectorModal()" class="px-4 py-2 bg-gray-800 text-gray-300 rounded-xl text-xs font-semibold">إلغاء</button>
+                <button onclick="saveNewSector()" class="px-4 py-2 bg-amber-500 text-gray-950 font-bold rounded-xl text-xs">إضافة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 left-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- Javascript Logic -->
+    <script>
+        // Default Sector Rules & Points Dictionary
+        const MILITARY_RULES_DICTIONARY = [
+            { location: "البنك المركزي", points: 10, cooldown: "كولد داون قياسي" },
+            { location: "البوليفارد", points: 9, cooldown: "كولد داون قياسي" },
+            { location: "بنك بوليتو", points: 9, cooldown: "كولد داون قياسي" },
+            { location: "الهيومن لاب 2060", points: 9, cooldown: "كولد داون قياسي" },
+            { location: "الملاهي", points: 8, cooldown: "كولد داون قياسي" },
+            { location: "شالية قريف", points: 8, cooldown: "كولد داون قياسي" },
+            { location: "المصانع 3061", points: 8, cooldown: "كولد داون قياسي" },
+            { location: "انفاق قريف", points: 8, cooldown: "كولد داون قياسي" },
+            { location: "مصنع الدجاج", points: 7, cooldown: "كولد داون قياسي" },
+            { location: "مصنع البقر", points: 7, cooldown: "كولد داون قياسي" },
+            { location: "مصنع الذهب", points: 7, cooldown: "كولد داون قياسي" },
+            { location: "مصنع القوارب", points: 7, cooldown: "كولد داون قياسي" },
+            { location: "مصنع الخشب", points: 7, cooldown: "كولد داون قياسي" },
+            { location: "فلة قريف", points: 7, cooldown: "كولد داون قياسي" },
+            { location: "مجمع اوركس", points: 7, cooldown: "كولد داون قياسي" },
+            { location: "بيت المزرعه", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "المزرعة", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "الكلوب", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "البار", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "بار ساندي", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "ببوكات", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "سد قريف", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "مرفى قريف", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "القريه المهجوره", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "التشاليح", points: 6, cooldown: "كولد داون قياسي" },
+            { location: "مصنع القطن", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "الورشة", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "مبنى المطار", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "فلة فرانك لن", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "حارة الشاطى", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "شقة تريفر", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "الاستيديو", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "المترو", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "بيت مايكل", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "الخياط", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "الارينا", points: 5, cooldown: "كولد داون قياسي" },
+            { location: "مداهمة مقر عصابة", points: 10, cooldown: "كولد داون ساعة واحدة" },
+            { location: "نقاط التفتيش (20 دقيقة)", points: 20, cooldown: "كولد داون ساعة واحدة" },
+            { location: "استلام موقع خفارة (20 دقيقة)", points: 20, cooldown: "أقصى عدد 4 عساكر / كولد داون ساعتين" },
+            { location: "السيطرة على الطريق السريع / المناطق", points: 20, cooldown: "مرة واحدة كل 4 ساعات" }
+        ];
+
+        // System State
+        let state = {
+            sectors: [
+                { id: "sec_1", name: "القوات المسلحة", rules: { minDuration: 20, timePenalty: 20, imagePenalty: 10, dailyLimit: 10 }, records: [] },
+                { id: "sec_2", name: "الحرس الملكي", rules: { minDuration: 20, timePenalty: 20, imagePenalty: 10, dailyLimit: 10 }, records: [] }
+            ],
+            activeSectorId: "sec_1"
+        };
+
+        // Initialize App
+        document.addEventListener("DOMContentLoaded", () => {
+            loadFromStorage();
+            renderSectorTabs();
+            renderRulesTable();
+            setCurrentDateInputs();
+            runSectorAudit();
+        });
+
+        function setCurrentDateInputs() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('record-date');
+            if (dateInput) dateInput.value = today;
+        }
+
+        // Render Sector Tabs
+        function renderSectorTabs() {
+            const container = document.getElementById("sectors-tab-container");
+            container.innerHTML = "";
+            state.sectors.forEach(sec => {
+                const isActive = sec.id === state.activeSectorId;
+                const btn = document.createElement("button");
+                btn.onclick = () => switchSector(sec.id);
+                btn.className = `px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap ${
+                    isActive ? "bg-amber-500 text-gray-950 shadow-lg shadow-amber-500/20" : "bg-gray-900 text-gray-400 hover:text-gray-200 border border-gray-800"
+                }`;
+                btn.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${sec.name}`;
+                container.appendChild(btn);
+            });
+
+            const activeSec = getActiveSector();
+            if (activeSec) {
+                document.getElementById("current-sector-title").textContent = activeSec.name;
+            }
+        }
+
+        function switchSector(sectorId) {
+            state.activeSectorId = sectorId;
+            renderSectorTabs();
+            runSectorAudit();
+        }
+
+        function getActiveSector() {
+            return state.sectors.find(s => s.id === state.activeSectorId);
+        }
+
+        // Sub-tabs switching
+        function switchSubTab(tabName) {
+            ['import', 'rules', 'audit'].forEach(t => {
+                const content = document.getElementById(`subtab-content-${t}`);
+                const btn = document.getElementById(`subtab-btn-${t}`);
+                if (content && btn) {
+                    if (t === tabName) {
+                        content.classList.remove('hidden');
+                        btn.className = "py-2 text-amber-400 border-b-2 border-amber-400 flex items-center gap-2 font-bold";
+                    } else {
+                        content.classList.add('hidden');
+                        btn.className = "py-2 text-gray-400 hover:text-gray-200 border-b-2 border-transparent flex items-center gap-2";
+                    }
+                }
+            });
+            if (tabName === 'audit') runSectorAudit();
+        }
+
+        // Parse Text from Discord Copy
+        function processBulkImport() {
+            const text = document.getElementById("bulk-paste-input").value;
+            if (!text.trim()) {
+                showToast("الرجاء لصق النص المنسوخ أولاً", "error");
+                return;
+            }
+
+            const activeSec = getActiveSector();
+            if (!activeSec) return;
+
+            // Split reports by common Discord separator or header patterns
+            const entries = text.split(/(?=تم مباشرة الحالة من قبل|موقع السيناريو|GR⭐)/gi);
+            let addedCount = 0;
+
+            entries.forEach(block => {
+                if (!block.trim()) return;
+
+                // Extract Military ID & Name
+                let militaryId = "1001";
+                let militaryName = "عسكري غير معرف";
+
+                const idMatch = block.match(/(?:GR⭐[^\n]*?\s+|ID:\s*|أيدي:\s*)(\d+)/i) || block.match(/\b(\d{3,6})\b/);
+                if (idMatch) militaryId = idMatch[1];
+
+                const nameMatch = block.match(/GR⭐\s*[\w-]*\s+([A-Za-z0-9_]+)/i) || block.match(/من قبل\s*:\s*@?([^\n]+)/i);
+                if (nameMatch) militaryName = nameMatch[1].trim();
+
+                // Extract Location
+                let location = "موقع سيناريو";
+                const locMatch = block.match(/موقع السيناريو\s*:\s*([^\n]+)/i);
+                if (locMatch) {
+                    location = locMatch[1].trim();
+                } else {
+                    MILITARY_RULES_DICTIONARY.forEach(r => {
+                        if (block.includes(r.location)) location = r.location;
+                    });
+                }
+
+                // Extract Points
+                let points = 5;
+                const ptsMatch = block.match(/نقاط موقع السيناريو\s*:\s*(\d+)/i) || block.match(/النقاط\s*:\s*(\d+)/i);
+                if (ptsMatch) {
+                    points = parseInt(ptsMatch[1]);
+                } else {
+                    const foundRule = MILITARY_RULES_DICTIONARY.find(r => r.location === location);
+                    if (foundRule) points = foundRule.points;
+                }
+
+                // Check for Images
+                const hasImages = block.toLowerCase().includes("image") || block.includes("http") || block.includes("صور");
+
+                activeSec.records.push({
+                    id: "rec_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+                    date: new Date().toISOString().split('T')[0],
+                    militaryId: militaryId,
+                    militaryName: militaryName,
+                    location: location,
+                    points: points,
+                    hasImages: hasImages,
+                    rawBlock: block
+                });
+
+                addedCount++;
+            });
+
+            saveToStorage();
+            showToast(`تم استخراج وحفظ ${addedCount} سجل بنجاح!`, "success");
+            document.getElementById("bulk-paste-input").value = "";
+            switchSubTab('audit');
+        }
+
+        // Run Sector Audit & Rules Check Engine
+        function runSectorAudit() {
+            const activeSec = getActiveSector();
+            if (!activeSec) return;
+
+            const startDate = document.getElementById("filter-start-date")?.value;
+            const endDate = document.getElementById("filter-end-date")?.value;
+            const searchTerm = document.getElementById("filter-search-term")?.value?.toLowerCase();
+
+            let records = activeSec.records.filter(r => {
+                if (startDate && r.date < startDate) return false;
+                if (endDate && r.date > endDate) return false;
+                if (searchTerm && !r.militaryId.includes(searchTerm) && !r.militaryName.toLowerCase().includes(searchTerm)) return false;
+                return true;
+            });
+
+            let grossPoints = 0;
+            let totalDeductions = 0;
+            let validRecords = [];
+            let invalidRecords = [];
+
+            records.forEach(r => {
+                grossPoints += r.points;
+                let isInvalid = false;
+                let penalty = 0;
+                let reasons = [];
+
+                // Rule Check 1: Missing Images
+                if (!r.hasImages) {
+                    isInvalid = true;
+                    penalty += activeSec.rules.imagePenalty;
+                    reasons.push(`عدم إرفاق الصور المطلوبة (خصم ${activeSec.rules.imagePenalty} نقاط)`);
+                }
+
+                if (isInvalid) {
+                    totalDeductions += penalty;
+                    invalidRecords.push({ ...r, penalty, reasons });
+                } else {
+                    validRecords.push(r);
+                }
+            });
+
+            const netPoints = grossPoints - totalDeductions;
+
+            // DOM Updates with Guards
+            const updateElem = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+
+            updateElem("summary-gross-points", grossPoints);
+            updateElem("summary-valid-count", validRecords.length);
+            updateElem("summary-invalid-count", invalidRecords.length);
+            updateElem("summary-total-deductions", `مجموع الخصم: ${totalDeductions} نقطة`);
+            updateElem("summary-net-points", netPoints);
+            updateElem("badge-valid-count", validRecords.length);
+            updateElem("badge-invalid-count", invalidRecords.length);
+
+            // Render Lists
+            const validListEl = document.getElementById("list-valid-records");
+            if (validListEl) {
+                validListEl.innerHTML = validRecords.length === 0 ? '<p class="text-xs text-gray-500">لا توجد سجلات مقبولة</p>' : 
+                    validRecords.map(r => `
+                        <div class="p-2.5 bg-gray-950 rounded-xl border border-gray-800 flex justify-between items-center text-xs">
+                            <div>
+                                <span class="font-bold text-amber-400">${r.militaryName} (ID: ${r.militaryId})</span>
+                                <span class="text-gray-400 mr-2">الموقع: ${r.location}</span>
+                            </div>
+                            <span class="font-bold text-green-400">+${r.points} نقاط</span>
+                        </div>
+                    `).join('');
+            }
+
+            const invalidListEl = document.getElementById("list-invalid-records");
+            if (invalidListEl) {
+                invalidListEl.innerHTML = invalidRecords.length === 0 ? '<p class="text-xs text-gray-500">لا توجد سجلات مخالفة</p>' : 
+                    invalidRecords.map(r => `
+                        <div class="p-2.5 bg-gray-950 rounded-xl border border-red-500/20 flex justify-between items-center text-xs">
+                            <div>
+                                <span class="font-bold text-red-400">${r.militaryName} (ID: ${r.militaryId})</span>
+                                <span class="text-gray-400 mr-2">الموقع: ${r.location}</span>
+                                <p class="text-[10px] text-red-400/80 mt-0.5">${r.reasons.join(' | ')}</p>
+                            </div>
+                            <span class="font-bold text-red-400">خصم ${r.penalty}</span>
+                        </div>
+                    `).join('');
+            }
+        }
+
+        // Helpers & UI Mods
+        function renderRulesTable() {
+            const body = document.getElementById("rules-table-body");
+            if (!body) return;
+            body.innerHTML = MILITARY_RULES_DICTIONARY.map(r => `
+                <tr class="hover:bg-gray-900/50">
+                    <td class="p-3 font-semibold text-gray-200">${r.location}</td>
+                    <td class="p-3 text-amber-400 font-bold">${r.points} نقاط</td>
+                    <td class="p-3 text-gray-400">${r.cooldown}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadSampleText() {
+            document.getElementById("bulk-paste-input").value = `GR⭐ M-35 yousif 91449 — 4:26 PM
+تم مباشرة الحالة من قبل : @⚡منسوبي وزارة الدفاع
+موقع السيناريو: شالية قريف
+نقاط موقع السيناريو: 8
+مجموع النقاط الكلي = 564
+صور السيناريو مع حالة الانتصار :
+Image
+Image
+
+GR⭐L-7 Aymn 102 [VIBE] — 4:48 PM
+تم مباشرة الحالة من قبل : @⚡منسوبي وزارة الدفاع
+موقع السيناريو: تشاليح
+نقاط موقع السيناريو: 6
+مجموع النقاط الكلي = 570
+صور السيناريو مع حالة الانتصار :
+Image
+Image`;
+        }
+
+        function showToast(msg, type = "info") {
+            const container = document.getElementById("toast-container");
+            if (!container) return;
+            const toast = document.createElement("div");
+            toast.className = `px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-xl transition-all duration-300 flex items-center gap-2 ${
+                type === "success" ? "bg-green-600" : type === "error" ? "bg-red-600" : "bg-amber-600"
+            }`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function saveToStorage() {
+            localStorage.setItem("grave_rp_audit_state", JSON.stringify(state));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem("grave_rp_audit_state");
+            if (saved) {
+                try { state = JSON.parse(saved); } catch(e){}
+            }
+        }
+
+        function openAddSectorModal() { document.getElementById("modal-add-sector").classList.remove("hidden"); document.getElementById("modal-add-sector").classList.add("flex"); }
+        function closeAddSectorModal() { document.getElementById("modal-add-sector").classList.add("hidden"); document.getElementById("modal-add-sector").classList.remove("flex"); }
+
+        function saveNewSector() {
+            const name = document.getElementById("new-sector-name").value.trim();
+            if (!name) return;
+            const newSec = { id: "sec_" + Date.now(), name: name, rules: { minDuration: 20, timePenalty: 20, imagePenalty: 10, dailyLimit: 10 }, records: [] };
+            state.sectors.push(newSec);
+            state.activeSectorId = newSec.id;
+            saveToStorage();
+            renderSectorTabs();
+            closeAddSectorModal();
+            showToast("تمت إضافة القطاع بنجاح", "success");
+        }
+    </script>
+</body>
+</html>
