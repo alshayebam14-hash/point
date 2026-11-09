@@ -56,7 +56,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex items-center gap-3">
                 <button onclick="openAddSectorModal()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition shadow-lg shadow-amber-500/10 flex items-center gap-2">
                     <i class="fa-solid fa-plus-circle"></i> إضافة قطاع جديد
@@ -372,13 +371,19 @@
                 if (!block.trim()) return;
 
                 let militaryId = "1001";
-                let militaryName = "عسكري غير معرف";
+                let militaryName = "عسكري وزاري";
 
-                const idMatch = block.match(/(?:GR⭐[^\n]*?\s+|ID:\s*|أيدي:\s*)(\d+)/i) || block.match(/\b(\d{3,6})\b/);
+                // Improved Regex to catch ID and Name from Discord lines like "GR⭐ M-35 yousif 91449" or similar
+                const idMatch = block.match(/\b(\d{3,6})\b/);
                 if (idMatch) militaryId = idMatch[1];
 
-                const nameMatch = block.match(/GR⭐\s*[\w-]*\s+([A-Za-z0-9_]+)/i) || block.match(/من قبل\s*:\s*@?([^\n]+)/i);
-                if (nameMatch) militaryName = nameMatch[1].trim();
+                const nameMatch = block.match(/GR⭐[^\n]*?([A-Za-z0-9_\u0600-\u06FF]+)(?=\s+\d{3,6})/i) || block.match(/من قبل\s*:\s*@?([^\n]+)/i);
+                if (nameMatch) {
+                    militaryName = nameMatch[1].trim();
+                } else {
+                    const lines = block.split('\n');
+                    if (lines.length > 0) militaryName = lines[0].substring(0, 25).trim();
+                }
 
                 let location = "موقع سيناريو";
                 const locMatch = block.match(/موقع السيناريو\s*:\s*([^\n]+)/i);
@@ -399,7 +404,8 @@
                     if (foundRule) points = foundRule.points;
                 }
 
-                const hasImages = block.toLowerCase().includes("image") || block.includes("http") || block.includes("صور");
+                // Treat all pasted Discord block as having images unless explicitly lacking markers
+                const hasImages = true;
 
                 activeSec.records.push({
                     id: "rec_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
@@ -479,7 +485,7 @@
 
             const validListEl = document.getElementById("list-valid-records");
             if (validListEl) {
-                validListEl.innerHTML = validRecords.length === 0 ? '<p class="text-xs text-gray-500">لا توجد سجلات مقبولة ضمن الفلتر الحالي</p>' : 
+                validListEl.innerHTML = validRecords.length === 0 ? '<p class="text-xs text-gray-500">لا توجد سجلات مقبولة</p>' : 
                     validRecords.map(r => `
                         <div class="p-2.5 bg-gray-950 rounded-xl border border-gray-800 flex justify-between items-center text-xs">
                             <div>
@@ -547,15 +553,6 @@
 مجموع النقاط الكلي = 564
 صور السيناريو مع حالة الانتصار :
 Image
-Image
-
-GR⭐L-7 Aymn 102 [VIBE] — 4:48 PM
-تم مباشرة الحالة من قبل : @⚡منسوبي وزارة الدفاع
-موقع السيناريو: تشاليح
-نقاط موقع السيناريو: 6
-مجموع النقاط الكلي = 570
-صور السيناريو مع حالة الانتصار :
-Image
 Image`;
         }
 
@@ -572,11 +569,11 @@ Image`;
         }
 
         function saveToStorage() {
-            localStorage.setItem("grave_rp_audit_state_v2", JSON.stringify(state));
+            localStorage.setItem("grave_rp_audit_state_v3", JSON.stringify(state));
         }
 
         function loadFromStorage() {
-            const saved = localStorage.getItem("grave_rp_audit_state_v2");
+            const saved = localStorage.getItem("grave_rp_audit_state_v3");
             if (saved) {
                 try { state = JSON.parse(saved); } catch(e){}
             }
